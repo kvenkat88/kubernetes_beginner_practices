@@ -1,0 +1,27 @@
+# https://ahmet.im/blog/mastering-kubeconfig/
+# https://devopscube.com/kubernetes-kubeconfig-file/
+#--server = Control plane IP/ current-context IP 
+#
+apiVersion: v1
+kind: Pod
+preferences: {}
+
+clusters:
+   - cluster:
+       name: development
+   - cluster:
+       name: scratch
+ 
+ users:
+   - developer
+   - experimenter
+ 
+contexts:
+  - context:
+      name: dev-frontend
+  - context:
+      name: dev-storage
+  - context:
+      name: exp-scratch
+
+
