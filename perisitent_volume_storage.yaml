@@ -1,0 +1,39 @@
+# You, as cluster administrator, create a PersistentVolume backed by physical storage. You do not associate the volume with any Pod.
+# You, now taking the role of a developer / cluster user, create a PersistentVolumeClaim that is automatically bound to a suitable PersistentVolume.
+# You create a Pod that uses the above PersistentVolumeClaim for storage.
+#
+#
+#  Kubernetes supports hostPath for development and testing on a single-node cluster. A hostPath PersistentVolume uses a file or directory on the Node to emulate network-attached storage.
+#
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: task-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce  #  volume can be mounted as read-write by a single Node
+  hostPath:
+     path: "/mnt/data"
+---
+# Pods use PersistentVolumeClaims to request physical storage. In this exercise, you create a PersistentVolumeClaim that requests a volume of at least three gibibytes that can provide read-write access for at least one Node.
+#
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim
+spec:
+  storageClassName: manual # identifies based upon storage class defined in Persistent Volume
+  resources:
+    requests: 
+      storage: 3Gi
+  accessModes:
+    - ReadWriteOnce # Volume can be mounted as read-write by a single node
+---
+

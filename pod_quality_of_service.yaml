@@ -1,0 +1,35 @@
+############################################################################################
+# When Kubernetes creates a Pod it assigns one of these QoS classes to the Pod:
+#
+# 1. Guaranteed
+# 2. Burstable
+# 3. BestEffort
+############################################################################################
+---
+apiVersion: v1
+kind: Pod
+metadata:
+   name: qos-demo-example
+   namespace: qos-example
+spec:
+  containers:
+     - name: guaranteed-qos
+       image: nginx
+       resources:
+         requests:
+           memory: "200Mi"  #both requests and limits shoule be equal
+           cpu: "700m"
+         limits:
+           memory: "200Mi"
+           cpu: "700m"
+     - name: burstable-qos
+       image: redis
+       resources:
+         requests:
+           memory: "100Mi"
+           cpu: "1"
+         limits:
+           memory: "200Mi"
+           cpu: "2"
+     - name: best-effort-qos
+       image: polinux/stress

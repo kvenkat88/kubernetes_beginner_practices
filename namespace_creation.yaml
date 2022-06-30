@@ -1,0 +1,21 @@
+# using minikube runner
+
+#################################################################################
+# Alternate way to generate namespace
+#################################################################################
+
+# kubectl create namespace <namespace-name>
+# kubectl create -f <filename.yaml> | kubectl apply -f <filename.yaml>
+# List and verify namespaces - kubectl get namespaces |kubectl get ns | kubectl get namespace
+# Describe namespace - kubectl describe ns|namespaces|namespace <namespace_name>
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mem-example
+---
+
+
+
+

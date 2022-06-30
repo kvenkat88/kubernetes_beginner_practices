@@ -1,0 +1,27 @@
+# fsGroupChangePolicy defines behavior for changing ownership and permission of the volume before being exposed inside a Pod. This field only applies to volume types that support fsGroup controlled ownership and permissions
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+    # fsGroupChangePolicy: "OnRootMismatch"
+  volumes:
+     - name: sec-ctx-vol
+       emptyDir: {}
+  containers:
+    - name: sec-ctx-demo
+      image: nginx
+      command: ["sh","-c","sleep 300"]
+      volumeMounts:
+         - name: sec-ctx-vol
+           mountPath: "/data/demo"
+      securityContext:
+        # runAsUser: 2000 #also possible
+        allowPrivilegeEscalation: false
+        capabilities:
+          add: ["NET_ADMIN","SYS_ADMIN"]

@@ -1,0 +1,32 @@
+#############################################################################
+# Pod Create - kubectl create -f <file.yaml> | kubectl apply -f ,file.yaml> -n <namespace_name>
+# List Pods - kubect get po -n <namespace name> | kubectl get pods -n <namespace name> | kubectl get pod -n <namespace name>
+# Get all pod details - kubectl get pods -o wide
+# Describe pods - kubectl describe pod <pod_name> -n <namespace-name>
+# to copy pod info as yaml file - kubectl get pod|po|pods <pod_name> -o yaml > <filename.yaml>
+# View pod node metrics - kubectl top pod memory-demo --namespace=mem-example
+# Delete pod eg - kubectl delete pod memory-demo --namespace=mem-example
+##############################################################################
+# If you do not specify a memory limit for a Container, one of the following situations applies:
+#
+# The Container has no upper bound on the amount of memory it uses. The Container could use all of the memory available on the Node where it is running which in turn could invoke the OOM Killer. Further, in case of an OOM Kill, a container with no resource limits will have a greater chance of being killed.
+#
+# The Container is running in a namespace that has a default memory limit, and the Container is automatically assigned the default limit. Cluster administrators can use a LimitRange to specify a default value for the memory limit.
+###################################################################################
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mem-demo
+  namespace: mem-example
+spec:
+  containers:
+     - name: mem-demo-image
+       image: polinux/stress
+       resources:
+         requests:
+           memory: "100Mi"
+         limits:
+           memory: "200Mi"
+       command: ["stress"]
+       args: ["--vm", "1", "--vm-bytes", "150M", "--vm-hang", "1"]

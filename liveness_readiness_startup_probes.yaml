@@ -1,0 +1,77 @@
+# liveness probes could catch a deadlock, where an application is running, but unable to make progress. Restarting a container in such a state can help to make the application more available despite bugs.
+
+# The kubelet uses readiness probes to know when a container is ready to start accepting traffic. A Pod is considered ready when all of its containers are ready. One use of this signal is to control which Pods are used as backends for Services. When a Pod is not ready, it is removed from Service load balancers.
+
+# The kubelet uses startup probes to know when a container application has started. If such a probe is configured, it disables liveness and readiness checks# until it succeeds, making sure those probes don't interfere with the application startup. This can be used to adopt liveness checks on slow starting contai# ners, avoiding them getting killed by the kubelet before they are up and running
+#
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-exec
+  labels:
+    test: liveness
+spec:
+  containers:
+    - name: liveness
+      image: k8s.gcr.io/busybox
+      args:
+        - /bin/sh
+        - -c
+        - touch /tmp/healthy; sleep 30; rm -f /tmp/healthy; sleep 600
+      livenessProbe: # First this probe execute
+        exec:
+          command:
+            - cat
+            - /tmp/healthy
+        initialDelaySeconds: 5
+        periodSeconds: 5
+      readinessProbe: # This will be executed second
+        exec:
+          command:
+            - cat
+            - /tmp/healthy
+        initialDelaySeconds: 5
+        periodSeconds: 5
+
+# Events:
+#  Type     Reason     Age               From               Message
+#  ----     ------     ----              ----               -------
+#  Normal   Scheduled  45s               default-scheduler  Successfully assigned default/liveness-exec to minikube
+#  Normal   Pulling    45s               kubelet            Pulling image "k8s.gcr.io/busybox"
+#  Normal   Pulled     43s               kubelet            Successfully pulled image "k8s.gcr.io/busybox" in 1.328517372s
+#  Normal   Created    43s               kubelet            Created container liveness
+#  Normal   Started    43s               kubelet            Started container liveness
+#  Warning  Unhealthy  0s (x3 over 10s)  kubelet            Liveness probe failed: cat: can't open '/tmp/healthy': No such file or directory
+#  Warning  Unhealthy  0s (x5 over 10s)  kubelet            Readiness probe failed: cat: can't open '/tmp/healthy': No such file or directory
+#  Normal   Killing    0s                kubelet            Container liveness failed liveness probe, will be restarted
+---
+apiVersion: v1
+kind: Pod
+metadata:
+   name: liveness-start-probe-http
+   labels:
+     test: liveness-http
+spec:
+  containers:
+    - name: liveness-http
+      image: k8s.gcr.io/liveness
+      args:
+        - server
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: 8080
+          httpHeaders:
+            - name: custom-header
+              value: Awesome
+        initialDelaySeconds: 3
+        periodSeconds: 3
+      startupProbe:
+        httpGet:
+          path: /healthz
+          port: 8080
+        failureThreshold: 30
+        periodSeconds: 10
+
+
